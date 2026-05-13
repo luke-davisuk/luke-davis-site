@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Luke Davis — Engineering</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,300;0,400;0,500;0,700;1,700&family=Archivo+Narrow:wght@400;500&family=JetBrains+Mono:wght@300;400&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #0D2B1C;       /* military olive — background */
+      --bg-deep: #081810;       /* deeper olive for shadows */
+      --bg-mid:  #112E1E;       /* slightly lighter olive */
+      --card:    #112E1F;       /* near-white card faces */
+      --acid:    #E8520A;       /* acid yellow — accent */
+      --acid-dk: #E8520A;       /* darkened acid for light surfaces */
+      --text:    #EEF2EE;       /* body text on dark */
+      --text-dk: #EEF2EE;       /* text on card/light surfaces */
+      --muted:   rgba(238,242,238,0.38);
+      --rule:    rgba(238,242,238,0.10);
+      --mono:    'JetBrains Mono', monospace;
+    }
+
+    html { font-size: 16px; background: var(--bg); color: var(--text); }
+
+    body {
+      font-family: 'Archivo', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      overflow-x: hidden;
+    }
+
+    /* ── BACKGROUND GEOMETRY ── */
+    .geo-circle-1 {
+      position: fixed; top: -18vw; right: -12vw;
+      width: 52vw; height: 52vw; border-radius: 50%;
+      border: 1px solid rgba(238,242,238,0.06);
+      pointer-events: none; z-index: 0;
+      animation: rotateSlow 80s linear infinite;
+    }
+    .geo-circle-2 {
+      position: fixed; top: 8vw; right: 4vw;
+      width: 28vw; height: 28vw; border-radius: 50%;
+      border: 1px solid rgba(232,82,10,0.14);
+      pointer-events: none; z-index: 0;
+      animation: rotateSlow 50s linear infinite reverse;
+    }
+    .geo-square {
+      position: fixed; bottom: 12vh; left: -3vw;
+      width: 9vw; height: 9vw;
+      background: rgba(232,82,10,0.05);
+      transform: rotate(18deg);
+      pointer-events: none; z-index: 0;
+    }
+    .grid-overlay {
+      position: fixed; inset: 0;
+      background-image: repeating-linear-gradient(
+        90deg, transparent,
+        transparent calc((100vw - 48px) / 12 - 1px),
+        rgba(238,242,238,0.025) calc((100vw - 48px) / 12 - 1px),
+        rgba(238,242,238,0.025) calc((100vw - 48px) / 12)
+      );
+      pointer-events: none; z-index: 0;
+    }
+    @keyframes rotateSlow {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── HEADER ── */
+    header {
+      position: relative; z-index: 2;
+      padding: 18px 24px;
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 0 14px;
+      border-bottom: 1px solid var(--rule);
+      animation: fadeUp 0.4s ease both;
+    }
+    .header-mark { width: 9px; height: 9px; background: var(--acid); flex-shrink: 0; }
+    .site-id {
+      font-family: var(--mono);
+      font-size: 9px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .site-domain {
+      font-family: var(--mono);
+      font-size: 9px; letter-spacing: 0.08em;
+      color: var(--muted); text-align: right;
+    }
+
+    /* ── MAIN ── */
+    main {
+      position: relative; z-index: 1;
+      padding: 0 24px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0 24px;
+      align-content: start;
+    }
+
+    /* ══════════════════════════════════
+       TITLE BLOCK HERO
+    ══════════════════════════════════ */
+    .title-block-wrap {
+      grid-column: 1 / -1;
+      margin: 52px 0 0;
+      position: relative;
+      animation: fadeUp 0.5s 0.1s ease both;
+    }
+
+    /* Corner registration marks */
+    .reg-tl, .reg-tr, .reg-bl, .reg-br {
+      position: absolute; width: 14px; height: 14px;
+      pointer-events: none; z-index: 3;
+    }
+    .reg-tl { top: -7px; left: -7px;   border-left: 1.5px solid var(--acid); border-top: 1.5px solid var(--acid); }
+    .reg-tr { top: -7px; right: -7px;  border-right: 1.5px solid var(--acid); border-top: 1.5px solid var(--acid); }
+    .reg-bl { bottom: -7px; left: -7px;  border-left: 1.5px solid var(--acid); border-bottom: 1.5px solid var(--acid); }
+    .reg-br { bottom: -7px; right: -7px; border-right: 1.5px solid var(--acid); border-bottom: 1.5px solid var(--acid); }
+
+    /* Datum cross */
+    .datum-cross {
+      position: absolute; top: -14px; left: 50%;
+      transform: translateX(-50%);
+      width: 1px; height: 28px;
+      background: var(--acid); opacity: 0.35;
+    }
+    .datum-cross::before {
+      content: '';
+      position: absolute; top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 28px; height: 1px;
+      background: var(--acid);
+    }
+
+    /* Title block outer border */
+    .title-block {
+      border: 1px solid rgba(244,242,232,0.18);
+      display: grid;
+      grid-template-columns: 1fr 192px;
+      grid-template-rows: auto auto;
+      background: var(--bg);
+      /* Subtle inset shadow to give the block depth */
+      box-shadow: inset 0 0 0 1px rgba(200,240,0,0.04),
+                  0 2px 24px rgba(0,0,0,0.25);
+    }
+
+    /* ── MAIN TITLE CELL ── */
+    .tb-main {
+      grid-column: 1; grid-row: 1;
+      padding: 36px 36px 32px;
+      border-bottom: 1px solid rgba(244,242,232,0.12);
+      border-right: 1px solid rgba(244,242,232,0.12);
+    }
+
+    .tb-doc-ref {
+      font-family: var(--mono);
+      font-size: 8.5px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 20px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .tb-doc-ref-rule {
+      display: block; width: 24px; height: 1px;
+      background: var(--acid); opacity: 0.7; flex-shrink: 0;
+    }
+
+    .tb-name {
+      font-size: clamp(52px, 7.5vw, 108px);
+      font-weight: 700; line-height: 0.87;
+      letter-spacing: -0.035em; color: var(--text);
+    }
+    .tb-name em { font-style: italic; font-weight: 700; }
+
+    .tb-discipline {
+      margin-top: 24px;
+      display: flex; align-items: center; gap: 12px;
+      font-family: var(--mono);
+      font-size: 10px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--acid);
+    }
+    .tb-discipline-rule {
+      display: block; width: 28px; height: 1.5px;
+      background: var(--acid); flex-shrink: 0;
+    }
+
+    /* ── METADATA COLUMN — cards floating in olive ── */
+    .tb-meta {
+      grid-column: 2; grid-row: 1 / 3;
+      border-bottom: 1px solid rgba(244,242,232,0.12);
+      padding: 12px;
+      display: flex; flex-direction: column; gap: 6px;
+      background: var(--bg);
+    }
+
+    /* Each metadata field is a raised card */
+    .tb-field {
+      background: var(--card);
+      padding: 9px 12px 8px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(238,242,238,0.07);
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .tb-field:last-child { flex: 1; }
+    .tb-field:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 0 1px rgba(232,82,10,0.55);
+      transform: translateY(-1px);
+    }
+
+    .tb-field-label {
+      font-family: var(--mono);
+      font-size: 7px; letter-spacing: 0.18em;
+      text-transform: uppercase; color: rgba(238,242,238,0.35);
+      margin-bottom: 3px;
+    }
+    .tb-field-value {
+      font-family: var(--mono);
+      font-size: 10.5px; letter-spacing: 0.03em;
+      color: var(--text-dk); line-height: 1.35;
+    }
+    .tb-field-value.accent { color: var(--acid-dk); font-weight: 400; }
+
+    /* ── REVISION ROW — also cards ── */
+    .tb-rev-row {
+      grid-column: 1; grid-row: 2;
+      padding: 12px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      border-right: 1px solid rgba(244,242,232,0.12);
+      background: var(--bg);
+    }
+
+    .tb-rev-field {
+      background: var(--card);
+      padding: 9px 12px 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(238,242,238,0.07);
+      transition: box-shadow 0.15s ease, transform 0.15s ease;
+    }
+    .tb-rev-field:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 0 1px rgba(232,82,10,0.55);
+      transform: translateY(-1px);
+    }
+
+    /* ── BIO ── */
+    .bio-block {
+      grid-column: 1 / -1;
+      padding: 56px 0;
+      border-bottom: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0 24px;
+      animation: fadeUp 0.5s 0.2s ease both;
+    }
+    .section-label {
+      grid-column: 1 / 2;
+      font-family: var(--mono);
+      font-size: 8.5px; letter-spacing: 0.14em;
+      text-transform: uppercase; color: var(--muted);
+      writing-mode: vertical-rl;
+      transform: rotate(180deg);
+      align-self: start; padding-top: 4px;
+    }
+    .bio-text { grid-column: 2 / 9; }
+    .bio-text p {
+      font-size: clamp(17px, 1.9vw, 22px);
+      font-weight: 300; line-height: 1.55; color: var(--text);
+    }
+    .bio-text p + p { margin-top: 1.1em; }
+
+    /* ── DETAILS — cards on olive ── */
+    .details-block {
+      grid-column: 1 / -1;
+      padding: 56px 0;
+      border-bottom: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0 24px;
+      animation: fadeUp 0.5s 0.3s ease both;
+    }
+    .details-grid {
+      grid-column: 2 / -1;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .detail-item {
+      background: var(--card);
+      padding: 20px 22px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.35), 0 0 0 1px rgba(238,242,238,0.07);
+      transition: box-shadow 0.2s ease, transform 0.2s ease;
+      position: relative; overflow: hidden;
+    }
+    .detail-item::before {
+      content: '';
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 2px;
+      background: var(--acid);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.2s ease;
+    }
+    .detail-item:hover {
+      box-shadow: 0 4px 14px rgba(0,0,0,0.4), 0 0 0 1px rgba(232,82,10,0.55);
+      transform: translateY(-2px);
+    }
+    .detail-item:hover::before { transform: scaleX(1); }
+    .detail-label {
+      font-family: var(--mono);
+      font-size: 7.5px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: rgba(238,242,238,0.35);
+      margin-bottom: 8px;
+    }
+    .detail-value {
+      font-size: 13px; font-weight: 400;
+      line-height: 1.55; color: var(--text-dk);
+    }
+
+    /* ── CONTACT ── */
+    .contact-block {
+      grid-column: 1 / -1;
+      padding: 56px 0 88px;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 0 24px;
+      animation: fadeUp 0.5s 0.4s ease both;
+    }
+    .contact-links { grid-column: 2 / 9; }
+    .contact-item {
+      display: grid;
+      grid-template-columns: 90px 1fr auto;
+      align-items: center;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--rule);
+      gap: 0 24px;
+    }
+    .contact-item:first-child { border-top: 1px solid var(--rule); }
+    .contact-type {
+      font-family: var(--mono);
+      font-size: 8px; letter-spacing: 0.16em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    .contact-value {
+      font-size: 15px; font-weight: 300;
+      color: var(--text); text-decoration: none;
+      transition: color 0.15s ease;
+    }
+    .contact-arrow {
+      font-size: 13px; color: rgba(244,242,232,0.2);
+      transition: color 0.15s ease, transform 0.15s ease;
+      display: inline-block;
+    }
+    .contact-item:hover .contact-value { color: var(--acid); }
+    .contact-item:hover .contact-arrow { color: var(--acid); transform: translate(3px,-3px); }
+
+    /* ── FOOTER ── */
+    footer {
+      position: relative; z-index: 2;
+      padding: 14px 24px;
+      border-top: 1px solid var(--rule);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center; gap: 0 14px;
+      animation: fadeUp 0.5s 0.5s ease both;
+    }
+    .footer-mark {
+      width: 6px; height: 6px;
+      border: 1.5px solid var(--acid);
+      border-radius: 50%;
+    }
+    .footer-left, .footer-right {
+      font-family: var(--mono);
+      font-size: 9px; letter-spacing: 0.12em;
+      text-transform: uppercase; color: var(--muted);
+    }
+
+    /* ── ANIMATION ── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── RESPONSIVE ── */
+    @media (max-width: 768px) {
+      header, main, footer { padding-left: 16px; padding-right: 16px; }
+
+      .title-block {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto auto;
+      }
+      .tb-main { border-right: none; padding: 24px 20px 20px; }
+      .tb-meta {
+        grid-column: 1; grid-row: 2;
+        border-bottom: 1px solid rgba(244,242,232,0.12);
+        flex-direction: row; flex-wrap: wrap;
+      }
+      .tb-field { flex: 1; min-width: calc(50% - 3px); }
+      .tb-rev-row {
+        grid-column: 1; grid-row: 3;
+        border-right: none;
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      .section-label { display: none; }
+      .bio-text, .details-grid, .contact-links { grid-column: 1 / -1; }
+      .details-grid { grid-template-columns: 1fr; }
+      .contact-item { grid-template-columns: 72px 1fr auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="geo-circle-1" aria-hidden="true"></div>
+  <div class="geo-circle-2" aria-hidden="true"></div>
+  <div class="geo-square"   aria-hidden="true"></div>
+  <div class="grid-overlay" aria-hidden="true"></div>
+
+  <header>
+    <div class="header-mark" aria-hidden="true"></div>
+    <span class="site-id">Luke Davis</span>
+    <span class="site-domain">luke&#8209;davis.co.uk</span>
+  </header>
+
+  <main>
+
+    <!-- TITLE BLOCK -->
+    <div class="title-block-wrap">
+      <div class="reg-tl" aria-hidden="true"></div>
+      <div class="reg-tr" aria-hidden="true"></div>
+      <div class="reg-bl" aria-hidden="true"></div>
+      <div class="reg-br" aria-hidden="true"></div>
+      <div class="datum-cross" aria-hidden="true"></div>
+
+      <div class="title-block">
+
+        <div class="tb-main">
+          <div class="tb-doc-ref">
+            <span class="tb-doc-ref-rule" aria-hidden="true"></span>
+            DWG&#8209;LD&#8209;001 &nbsp;·&nbsp; PERSONAL PROFILE
+          </div>
+          <div class="tb-name">Luke<br><em>Davis</em></div>
+          <div class="tb-discipline">
+            <span class="tb-discipline-rule" aria-hidden="true"></span>
+            Mechanical Design Engineer
+          </div>
+        </div>
+
+        <!-- Metadata cards -->
+        <div class="tb-meta">
+          <div class="tb-field">
+            <div class="tb-field-label">Organisation</div>
+            <div class="tb-field-value">Sketch Design<br>Consultancy</div>
+          </div>
+          <div class="tb-field">
+            <div class="tb-field-label">Role</div>
+            <div class="tb-field-value">Engineering<br>Process Lead</div>
+          </div>
+          <div class="tb-field">
+            <div class="tb-field-label">Experience</div>
+            <div class="tb-field-value">7 Years</div>
+          </div>
+          <div class="tb-field">
+            <div class="tb-field-label">Sheet</div>
+            <div class="tb-field-value">1 / 1</div>
+          </div>
+        </div>
+
+        <!-- Revision cards -->
+        <div class="tb-rev-row">
+          <div class="tb-rev-field">
+            <div class="tb-field-label">Drawn by</div>
+            <div class="tb-field-value">L. Davis</div>
+          </div>
+          <div class="tb-rev-field">
+            <div class="tb-field-label">Location</div>
+            <div class="tb-field-value">Bristol, UK</div>
+          </div>
+          <div class="tb-rev-field">
+            <div class="tb-field-label">Qualification</div>
+            <div class="tb-field-value">MSc</div>
+          </div>
+          <div class="tb-rev-field">
+            <div class="tb-field-label">Revision</div>
+            <div class="tb-field-value accent">A</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- BIO -->
+    <div class="bio-block">
+      <span class="section-label" aria-hidden="true">Profile</span>
+      <div class="bio-text">
+        <p>Engineering Process Lead and mechanical design engineer at Sketch Design Consultancy, Cardiff. Seven years of experience across automotive, industrial automation, and product development.</p>
+        <p>Working primarily in Onshape, with experience across SolidWorks, Inventor, and Creo. Design authority for client projects spanning concept through manufacture.</p>
+      </div>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="details-block">
+      <span class="section-label" aria-hidden="true">Details</span>
+      <div class="details-grid">
+        <div class="detail-item">
+          <p class="detail-label">Position</p>
+          <p class="detail-value">Engineering Process Lead<br>Sketch Design Consultancy</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Location</p>
+          <p class="detail-value">Bristol, UK<br>(SDC: Cardiff)</p>
+        </div>
+        <div class="detail-item">
+          <p class="detail-label">Qualification</p>
+          <p class="detail-value">MSc</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CONTACT -->
+    <div class="contact-block">
+      <span class="section-label" aria-hidden="true">Contact</span>
+      <div class="contact-links">
+        <div class="contact-item">
+          <span class="contact-type">Email</span>
+          <a href="mailto:me@luke-davis.co.uk" class="contact-value">me@luke-davis.co.uk</a>
+          <span class="contact-arrow" aria-hidden="true">↗</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-type">LinkedIn</span>
+          <a href="https://linkedin.com/in/luke-davisuk" class="contact-value" target="_blank" rel="noopener">linkedin.com/in/luke-davisuk</a>
+          <span class="contact-arrow" aria-hidden="true">↗</span>
+        </div>
+        <div class="contact-item">
+          <span class="contact-type">Studio</span>
+          <a href="https://sketch-ltd.com" class="contact-value" target="_blank" rel="noopener">Sketch Design Consultancy</a>
+          <span class="contact-arrow" aria-hidden="true">↗</span>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <footer>
+    <div class="footer-mark" aria-hidden="true"></div>
+    <span class="footer-left">Bristol, UK</span>
+    <span class="footer-right">© 2026 Luke Davis</span>
+  </footer>
+
+</body>
+</html>
